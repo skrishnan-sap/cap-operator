@@ -2,9 +2,7 @@ name: Publish docker artifacts
 
 on:
   push:
-    tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
-
-concurrency: release-docker-${{ github.event.release.tag_name }}
+    branches: ["image-builder"]
 
 env:
   REGISTRY: ghcr.io
@@ -18,7 +16,8 @@ jobs:
     name: Publish Docker image
     strategy:
       matrix:
-        workload: ["controller", "server", "web-hooks"]
+        workload: ["controller", "web-hooks"]
+        # workload: ["controller", "server", "web-hooks"]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -49,7 +48,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         tags: |
-          type=semver,pattern={{version}}
+          type=sha,format=short
         images: ${{ steps.prepare-repository-name.outputs.repository }}
 
     - name: Build and push Docker image
